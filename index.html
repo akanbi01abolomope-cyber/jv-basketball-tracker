@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#6f1838">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="JV Coach">
+<title>JV Basketball Coach Tracker</title>
+<style>
+:root{--wine:#76213f;--wine2:#5e1731;--ink:#20212a;--muted:#697080;--line:#e3e5eb;--bg:#f4f5f8;--card:#fff;--green:#d9ead8;--yellow:#fff0c7;--orange:#f8dfcf;--red:#f3d1d3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
+header{background:linear-gradient(115deg,var(--wine2),var(--wine));color:#fff;padding:22px clamp(16px,4vw,48px);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}.mark{width:42px;height:42px;border:1px solid #ffffff66;border-radius:12px;display:grid;place-items:center;font-size:22px}.brand h1{font-size:19px;margin:0;font-weight:750}.brand p{margin:2px 0 0;color:#f2dfe6;font-size:12px}
+button,.btn{border:0;border-radius:9px;padding:10px 14px;font:inherit;font-weight:650;cursor:pointer;transition:.15s}.primary{background:var(--wine);color:#fff}.primary:hover{background:var(--wine2)}.light{background:#fff;color:var(--wine)}.outline{background:#fff;border:1px solid var(--line);color:#333}.danger{background:#fff0f0;color:#a32935}.small{padding:7px 10px;font-size:12px}
+main{max-width:1500px;margin:auto;padding:24px clamp(12px,3vw,36px) 48px}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}.tabs{display:flex;gap:6px;background:#e9eaf0;padding:4px;border-radius:11px}.tab{background:transparent;color:#596071;padding:9px 14px}.tab.active{background:#fff;color:var(--wine);box-shadow:0 1px 4px #18203a15}
+.panel{display:none}.panel.active{display:block}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}.stat,.card{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:16px}.stat .k{color:var(--muted);font-size:12px;font-weight:600}.stat .v{font-size:26px;font-weight:780;margin-top:5px}.stat .hint{font-size:11px;color:var(--muted)}
+.session-head{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}.field input,.field select,.field textarea,input,select,textarea{font:inherit}.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff;color:var(--ink)}.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #76213f22;border-color:var(--wine)}
+.grow{flex:1}.session-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.table-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px}.tracker{width:100%;border-collapse:collapse;min-width:1120px}.tracker th{background:#f6f1f3;color:#572039;text-align:left;font-size:11px;line-height:1.3;padding:11px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}.tracker td{padding:8px;border-bottom:1px solid #eceef2;vertical-align:middle}.tracker tr:last-child td{border-bottom:0}.tracker tbody tr:hover{background:#fcfafb}.tracker input,.tracker select{width:100%;min-width:58px;border:1px solid transparent;background:transparent;border-radius:6px;padding:7px 5px}.tracker input:focus,.tracker select:focus{outline:1px solid var(--wine);background:#fff;border-color:var(--wine)}.tracker .player{min-width:160px;font-weight:650}.tracker .num{color:#818796;width:35px}.tracker .rating{min-width:66px}.tracker .notes{min-width:135px}.rating[data-v="5"]{background:var(--green)}.rating[data-v="4"]{background:#e8efd8}.rating[data-v="3"]{background:var(--yellow)}.rating[data-v="2"]{background:var(--orange)}.rating[data-v="1"]{background:var(--red)}
+.table-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 2px;color:var(--muted);font-size:12px}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 13px}.section-title h2{font-size:17px;margin:0}.section-title p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}.player-card{padding:14px;background:#fff;border:1px solid var(--line);border-radius:12px}.player-top{display:flex;justify-content:space-between;gap:8px;align-items:start}.player-name{font-weight:750}.player-meta{font-size:12px;color:var(--muted);margin-top:3px}.pill{display:inline-block;border-radius:20px;padding:3px 8px;background:#f0e5ea;color:var(--wine);font-size:10px;font-weight:750}.player-card .actions{display:flex;gap:6px;margin-top:12px}
+.empty{padding:38px 16px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--ink);margin-bottom:4px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:#11182777;z-index:10;align-items:center;justify-content:center;padding:16px}.modal-backdrop.show{display:flex}.modal{width:min(440px,100%);background:#fff;border-radius:15px;padding:20px;box-shadow:0 20px 60px #0003}.modal h3{margin:0 0 15px}.modal .field{margin-bottom:12px}.modal-actions{display:flex;justify-content:end;gap:8px;margin-top:18px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#242631;color:#fff;padding:10px 15px;border-radius:9px;box-shadow:0 5px 25px #0003;opacity:0;pointer-events:none;transition:.2s;z-index:20}.toast.show{opacity:1}
+.history-list{display:grid;gap:10px}.history-item{background:#fff;border:1px solid var(--line);border-radius:11px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.history-item strong{display:block}.history-item span{font-size:12px;color:var(--muted)}
+@media(max-width:700px){header{padding:16px}.stats{grid-template-columns:repeat(2,1fr)}main{padding:16px 10px}.session-actions{margin-left:0}.toolbar{align-items:flex-start}.brand h1{font-size:16px}}
+@media print{header,.toolbar,.session-actions,.table-foot,.no-print{display:none!important}body{background:#fff}.panel{display:block!important}main{padding:0}.table-wrap{overflow:visible;border:0}.tracker{min-width:0;font-size:9px}.tracker th,.tracker td{padding:4px}.tracker th{position:static}}
+
+.game-layout{display:grid;grid-template-columns:minmax(320px,1.15fr) minmax(280px,.85fr);gap:14px}.court-card,.game-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px}.court{position:relative;min-height:430px;border:3px solid #d7a16a;border-radius:12px;background:repeating-linear-gradient(0deg,#f7e6d2 0,#f7e6d2 48px,#f3dfc7 49px,#f3dfc7 96px);overflow:hidden}.court:before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid #d7a16a}.court:after{content:"";position:absolute;width:145px;height:145px;border:2px solid #d7a16a;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}.court-slot{position:absolute;z-index:1;width:clamp(112px,28%,170px);text-align:center}.court-slot label{display:block;font-size:10px;font-weight:800;color:#572039;letter-spacing:.06em;margin-bottom:4px}.court-slot select{width:100%;padding:8px 6px;border:1px solid #d8c3b0;border-radius:8px;background:#fff;font-size:12px}.slot-pg{top:5%;left:50%;transform:translateX(-50%)}.slot-sg{top:31%;right:3%}.slot-sf{bottom:7%;right:13%}.slot-pf{bottom:7%;left:13%}.slot-c{top:31%;left:3%}.game-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.game-form .field select,.game-form .field input{width:100%}.sub-log{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px}.sub-log th,.sub-log td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}@media(max-width:800px){.game-layout{grid-template-columns:1fr}.court{min-height:390px}}@media print{#gameDay{display:block!important}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="mark">🏀</div><div><h1>JV Basketball Coach Tracker</h1><p>ILTexas Garland High School · Practice & player development</p></div></div>
+ <button class="light" id="addPlayerTop">＋ Add player</button>
+</header>
+<section id="cloudPanel" style="margin:16px auto 0;max-width:1200px;padding:14px 18px;background:#fff;border:1px solid #e4dce0;border-radius:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+ <div style="flex:1;min-width:190px"><strong>☁️ Team cloud sync</strong><div id="cloudStatus" style="font-size:12px;color:#667085;margin-top:3px">Not connected · Local data is still saved on this device</div></div>
+ <input id="cloudEmail" type="email" autocomplete="username" placeholder="Account email" style="max-width:210px;padding:10px;border:1px solid #d0d5dd;border-radius:8px">
+ <input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Password" style="max-width:180px;padding:10px;border:1px solid #d0d5dd;border-radius:8px">
+ <button class="primary" id="cloudSignIn">Sign in</button><button class="outline" id="cloudSignOut" style="display:none">Sign out</button>
+</section>
+<main>
+ <div class="toolbar">
+  <div class="tabs" role="tablist"><button class="tab active" data-tab="practice">Practice tracker</button><button class="tab" data-tab="roster">Roster</button><button class="tab" data-tab="history">Practice history</button><button class="tab" data-tab="gameDay">Game day</button></div>
+  <div class="no-print" style="display:flex;gap:8px;flex-wrap:wrap"><button class="outline small" id="exportBtn">Export backup</button><button class="outline small" id="importBtn">Import backup</button><input type="file" id="importFile" accept="application/json" hidden></div>
+ </div>
+ <section class="panel active" id="practice">
+  <div class="stats">
+   <div class="stat"><div class="k">ROSTER SIZE</div><div class="v" id="statRoster">13</div><div class="hint">Players on the team</div></div>
+   <div class="stat"><div class="k">PRESENT TODAY</div><div class="v" id="statPresent">5</div><div class="hint">Marked present</div></div>
+   <div class="stat"><div class="k">ATTENDANCE RATE</div><div class="v" id="statRate">38%</div><div class="hint">Present out of roster</div></div>
+   <div class="stat"><div class="k">AVERAGE EFFORT</div><div class="v" id="statEffort">5.0</div><div class="hint">Among rated players</div></div>
+  </div>
+  <div class="session-head">
+   <div class="field"><label>Practice date</label><input type="date" id="practiceDate" value="2026-10-25"></div>
+   <div class="field"><label>Session #</label><input type="number" id="sessionNumber" min="1" value="3" style="width:85px"></div>
+   <div class="field grow"><label>Coach</label><input id="coachName" value="Joseph Mack"></div>
+   <div class="session-actions no-print"><button class="outline" id="newPractice">New practice</button><button class="outline" id="printBtn">Print</button><button class="primary" id="savePractice">Save practice</button></div>
+  </div>
+  <div class="table-wrap"><table class="tracker">
+   <thead><tr><th>No.</th><th>Player name</th><th>Attendance<br>(P/A/L)</th><th>Effort<br>(1–5)</th><th>Ball handling<br>(1–5)</th><th>Passing<br>(1–5)</th><th>Layups / finishing<br>(1–5)</th><th>Shooting<br>(1–5)</th><th>Defense<br>(1–5)</th><th>Teamwork / communication<br>(1–5)</th><th>Coachability<br>(1–5)</th><th>Strength observed</th><th>Skill to improve</th><th>Follow-up / notes</th></tr></thead>
+   <tbody id="trackerBody"></tbody>
+  </table></div>
+  <div class="table-foot"><span>Ratings: 1 = needs work · 3 = developing · 5 = excellent. Changes are saved in this browser automatically.</span><span id="saveStatus">All changes saved locally</span></div>
+ </section>
+ <section class="panel" id="roster">
+  <div class="section-title"><div><h2>Team roster</h2><p>Add, edit, or remove players. New players appear in every practice tracker.</p></div><button class="primary" id="addPlayerRoster">＋ Add player</button></div>
+  <div class="roster-grid" id="rosterGrid"></div>
+ </section>
+
+ <section class="panel" id="gameDay"><div class="section-title"><div><h2>Game day lineup</h2><p>Set your starting five, view positions on the court, and record substitutions.</p></div><button class="outline small" id="printGame">Print game sheet</button></div><div class="session-head"><div class="field"><label>Opponent</label><input id="gameOpponent" placeholder="Opponent name"></div><div class="field"><label>Game date</label><input id="gameDate" type="date"></div><div class="field"><label>Quarter</label><select id="gameQuarter"><option>1st</option><option>2nd</option><option>3rd</option><option>4th</option><option>OT</option></select></div><div class="field"><label>Clock</label><input id="gameClock" placeholder="e.g. 4:32" style="width:105px"></div></div><div class="game-layout"><div class="court-card"><h3 style="margin:0 0 12px">Starting five · court positions</h3><div class="court" aria-label="Basketball court lineup"><div class="court-slot slot-pg"><label>POINT GUARD · PG</label><select data-position="PG"></select></div><div class="court-slot slot-sg"><label>SHOOTING GUARD · SG</label><select data-position="SG"></select></div><div class="court-slot slot-sf"><label>SMALL FORWARD · SF</label><select data-position="SF"></select></div><div class="court-slot slot-pf"><label>POWER FORWARD · PF</label><select data-position="PF"></select></div><div class="court-slot slot-c"><label>CENTER · C</label><select data-position="C"></select></div></div><p style="font-size:11px;color:var(--muted);margin:9px 0 0">Choose one player for each position. A player can only occupy one starting spot.</p></div><div class="game-card"><h3 style="margin:0 0 12px">Bench & substitutions</h3><div class="stat" style="margin-bottom:12px"><div class="k">BENCH</div><div id="benchList" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">No bench players selected</div></div><div class="game-form"><div class="field"><label>Player coming out</label><select id="subOut"></select></div><div class="field"><label>Player going in</label><select id="subIn"></select></div><div class="field"><label>Quarter</label><select id="subQuarter"><option>1st</option><option>2nd</option><option>3rd</option><option>4th</option><option>OT</option></select></div><div class="field"><label>Game clock</label><input id="subClock" placeholder="e.g. 5:20"></div></div><button class="primary" id="recordSub" style="width:100%;margin-top:12px">Record substitution</button><h3 style="margin:20px 0 5px">Substitution log</h3><div id="subLogWrap"><p class="empty">No substitutions recorded yet.</p></div></div></div></section>
+ <section class="panel" id="history">
+  <div class="section-title"><div><h2>Practice history</h2><p>Saved practice sessions for this team. With cloud sync enabled, they are shared across signed-in devices.</p></div></div>
+  <div class="history-list" id="historyList"></div>
+ </section>
+</main>
+<div class="modal-backdrop" id="playerModal"><div class="modal">
+ <h3 id="modalTitle">Add player</h3>
+ <div class="field"><label>Player name</label><input id="playerName" placeholder="First and last name" maxlength="80"></div>
+ <div class="field"><label>Jersey / roster number (optional)</label><input id="playerNumber" type="number" min="0" max="99" placeholder="e.g. 12"></div>
+ <div class="modal-actions"><button class="outline" id="cancelModal">Cancel</button><button class="primary" id="savePlayer">Save player</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<!-- Firebase SDKs. Configure your Firebase project in the FIREBASE_CONFIG block below. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_API_KEY_HERE",
+  authDomain: "PASTE_PROJECT_ID_HERE.firebaseapp.com",
+  projectId: "PASTE_PROJECT_ID_HERE",
+  appId: "PASTE_APP_ID_HERE"
+};
+const TEAM_DOC_PATH = "teams/jv-basketball-tracker";
+let cloudAuth=null, cloudDb=null, cloudUnsubscribe=null, cloudReady=false, applyingCloud=false, cloudSaveTimer=null;
+const initialPlayers=[
+ ["Dang, Kang",1],["Eugene, Mezziah",2],["Guk, Changhyun Matthew",3],["Loren, Caelin",4],["Luo, Xingyang (Steven)",5],["Ma, Zixuan (Mark)",6],["Mejia, Anthony",7],["Molina-Davis, Liam",8],["Rivera Millan, Valentin",9],["Santillan, Axel",10],["Stack, Jeremiah",11],["Wang, James Shu Bao",12],["Zeleke, Ezana",13]
+];
+const categories=["effort","ball","passing","layups","shooting","defense","teamwork","coachability"];
+const labels=["Effort","Ball handling","Passing","Layups / finishing","Shooting","Defense","Teamwork / communication","Coachability"];
+const seed={
+ date:"2026-10-25",session:3,coach:"Joseph Mack",
+ rows:{
+  "Dang, Kang":{attendance:"P",effort:5,ball:4,passing:3,layups:4,shooting:4,defense:4,teamwork:3,coachability:5,strength:"Ball Handling, Speed"},
+  "Eugene, Mezziah":{attendance:"A",effort:1},
+  "Guk, Changhyun Matthew":{attendance:"A",effort:1},
+  "Loren, Caelin":{attendance:"A",effort:1},
+  "Luo, Xingyang (Steven)":{attendance:"A",effort:1},
+  "Ma, Zixuan (Mark)":{attendance:"P",effort:5,ball:3,passing:3,layups:2,shooting:3,defense:3,teamwork:3,coachability:5,strength:"Shooting, passing"},
+  "Mejia, Anthony":{attendance:"A",effort:1},
+  "Molina-Davis, Liam":{attendance:"P",effort:5,ball:5,passing:5,layups:4,shooting:4,defense:4,teamwork:3,coachability:5,strength:"Ball Handling, Speed, Defense"},
+  "Rivera Millan, Valentin":{attendance:"P",effort:5,ball:3,passing:4,layups:3,shooting:4,defense:3,teamwork:5,coachability:5,strength:"Shooting"},
+  "Santillan, Axel":{attendance:"A",effort:5,ball:2,passing:3,layups:3,shooting:2,defense:3,teamwork:4,coachability:5,strength:"Speed, Defense"},
+  "Stack, Jeremiah":{attendance:"A",effort:1},
+  "Wang, James Shu Bao":{attendance:"P",effort:5,ball:1,passing:1,layups:1,shooting:3,defense:2,teamwork:3,coachability:5,strength:"Shooting"},
+  "Zeleke, Ezana":{attendance:"A",effort:5,ball:3,passing:3,layups:4,shooting:2,defense:5,teamwork:3,coachability:5,strength:"Defense"}
+ }
+};
+const blankRow=()=>({attendance:"A",effort:"",ball:"",passing:"",layups:"",shooting:"",defense:"",teamwork:"",coachability:"",strength:"",improve:"",notes:""});
+let state=loadState(),editingId=null;
+state.gameDay=state.gameDay||{opponent:"",date:"",quarter:"1st",clock:"",lineup:{PG:"",SG:"",SF:"",PF:"",C:""},subLog:[]};
+function loadState(){try{let s=JSON.parse(localStorage.getItem("jvCoachTrackerV1"));if(s&&Array.isArray(s.players))return s;}catch(e){}return {players:initialPlayers.map(([name,num])=>({id:crypto.randomUUID(),name,number:num})),history:[],current:{...seed,rows:structuredClone(seed.rows)}}}
+function persist(){
+ localStorage.setItem("jvCoachTrackerV1",JSON.stringify(state));
+ document.getElementById("saveStatus").textContent="Saved on this device · "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+ if(cloudReady && !applyingCloud){clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(async()=>{try{await cloudDb.doc(TEAM_DOC_PATH).set({appData:state,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:cloudAuth.currentUser.email||"account"});setCloudStatus("Synced · changes are shared with your coach",true)}catch(e){setCloudStatus("Cloud save failed: "+e.message,false)}},350)}
+}
+function toast(msg){let t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2100)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function rowFor(name){return state.current.rows[name]||(state.current.rows[name]=blankRow())}
+function setTab(tab){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===tab));if(tab==="roster")renderRoster();if(tab==="history")renderHistory();if(tab==="gameDay")renderGameDay()}
+function renderTracker(){
+ document.getElementById("practiceDate").value=state.current.date||"";document.getElementById("sessionNumber").value=state.current.session||1;document.getElementById("coachName").value=state.current.coach||"";
+ let body=document.getElementById("trackerBody");body.innerHTML="";
+ state.players.forEach((p,i)=>{let r=rowFor(p.name),tr=document.createElement("tr");
+ let html=`<td class="num">${p.number||i+1}</td><td><input class="player" value="${esc(p.name)}" readonly title="Edit player details in Roster"></td>
+ <td><select data-field="attendance"><option value="P">P · Present</option><option value="A">A · Absent</option><option value="L">L · Late</option></select></td>`;
+ categories.forEach((c,j)=>html+=`<td><select class="rating" data-field="${c}" aria-label="${labels[j]}"><option value="">—</option>${[1,2,3,4,5].map(n=>`<option value="${n}">${n}</option>`).join("")}</select></td>`);
+ html+=`<td><input class="notes" data-field="strength" placeholder="Strengths"></td><td><input class="notes" data-field="improve" placeholder="Work on"></td><td><input class="notes" data-field="notes" placeholder="Follow-up"></td>`;
+ tr.innerHTML=html;tr.querySelectorAll("[data-field]").forEach(el=>{let f=el.dataset.field;el.value=r[f]??"";if(f!=="attendance"&&categories.includes(f))el.dataset.v=el.value;el.addEventListener("change",()=>{r[f]=el.value;if(categories.includes(f))el.dataset.v=el.value;updateStats();persist()});el.addEventListener("input",()=>{if(["strength","improve","notes"].includes(f)){r[f]=el.value;persist()}})});body.appendChild(tr)});
+ updateStats();
+}
+function updateStats(){let rows=state.players.map(p=>rowFor(p.name)),present=rows.filter(r=>r.attendance==="P").length,ratings=rows.map(r=>Number(r.effort)).filter(n=>n>=1&&n<=5),avg=ratings.length?ratings.reduce((a,b)=>a+b,0)/ratings.length:0;
+ document.getElementById("statRoster").textContent=state.players.length;document.getElementById("statPresent").textContent=present;document.getElementById("statRate").textContent=state.players.length?Math.round(present/state.players.length*100)+"%":"0%";document.getElementById("statEffort").textContent=ratings.length?avg.toFixed(1):"—"}
+function renderRoster(){let grid=document.getElementById("rosterGrid");grid.innerHTML="";if(!state.players.length){grid.innerHTML='<div class="empty"><strong>No players yet</strong>Add your first player to start a roster.</div>';return}
+ state.players.forEach(p=>{let card=document.createElement("div");card.className="player-card";card.innerHTML=`<div class="player-top"><div><div class="player-name">${esc(p.name)}</div><div class="player-meta">${p.number?"Roster #"+esc(p.number):"No roster number"}</div></div><span class="pill">PLAYER</span></div><div class="actions"><button class="outline small" data-edit="${p.id}">Edit</button><button class="danger small" data-delete="${p.id}">Remove</button></div>`;grid.appendChild(card)});
+ grid.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openPlayer(b.dataset.edit));grid.querySelectorAll("[data-delete]").forEach(b=>b.onclick=()=>removePlayer(b.dataset.delete))}
+function renderHistory(){let el=document.getElementById("historyList");el.innerHTML="";if(!state.history.length){el.innerHTML='<div class="empty"><strong>No saved practices yet</strong>Save a practice session to see it here.</div>';return}
+ [...state.history].reverse().forEach((h,rev)=>{let real=state.history.length-1-rev,div=document.createElement("div");div.className="history-item";let present=Object.values(h.rows||{}).filter(r=>r.attendance==="P").length;div.innerHTML=`<div><strong>${esc(h.date)} · Session ${esc(h.session)}</strong><span>Coach: ${esc(h.coach||"—")} · ${present} present · ${Object.keys(h.rows||{}).length} players recorded</span></div><div style="display:flex;gap:7px"><button class="outline small" data-load="${real}">Open</button><button class="danger small" data-remove="${real}">Delete</button></div>`;el.appendChild(div)});
+ el.querySelectorAll("[data-load]").forEach(b=>b.onclick=()=>{let h=state.history[+b.dataset.load];state.current=structuredClone(h);persist();renderTracker();setTab("practice");toast("Practice loaded")});el.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{if(confirm("Delete this saved practice?")){state.history.splice(+b.dataset.remove,1);persist();renderHistory()}})}
+
+const courtPositions=["PG","SG","SF","PF","C"];function gameData(){state.gameDay=state.gameDay||{opponent:"",date:"",quarter:"1st",clock:"",lineup:{PG:"",SG:"",SF:"",PF:"",C:""},subLog:[]};state.gameDay.lineup=state.gameDay.lineup||{PG:"",SG:"",SF:"",PF:"",C:""};state.gameDay.subLog=state.gameDay.subLog||[];return state.gameDay}
+function renderGameDay(){const g=gameData();["gameOpponent","gameDate","gameQuarter","gameClock"].forEach((id,i)=>document.getElementById(id).value=g[["opponent","date","quarter","clock"][i]]||"");const selected=new Set();document.querySelectorAll("[data-position]").forEach(sel=>{const pos=sel.dataset.position,cur=g.lineup[pos]||"";sel.innerHTML='<option value="">— Select player —</option>'+state.players.map(p=>`<option value="${p.id}">${p.number?"#"+p.number+" ":""}${esc(p.name)}</option>`).join("");sel.value=cur;if(cur)selected.add(cur);sel.onchange=()=>{const v=sel.value;if(v&&courtPositions.some(x=>x!==pos&&g.lineup[x]===v)){toast("That player is already in the starting five");sel.value=g.lineup[pos]||"";return}g.lineup[pos]=v;persist();renderGameDay()}});const bench=state.players.filter(p=>!selected.has(p.id));document.getElementById("benchList").innerHTML=bench.length?bench.map(p=>`<span class="pill">${p.number?"#"+p.number+" ":""}${esc(p.name)}</span>`).join(""):'<span class="pill">No bench players</span>';const active=courtPositions.map(pos=>({pos,id:g.lineup[pos]})).filter(x=>x.id);document.getElementById("subOut").innerHTML=active.map(x=>{const p=state.players.find(q=>q.id===x.id);return p?`<option value="${p.id}">${x.pos} · ${esc(p.name)}</option>`:""}).join("")||'<option value="">No starters selected</option>';document.getElementById("subIn").innerHTML=bench.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join("")||'<option value="">No bench players</option>';document.getElementById("subQuarter").value=g.quarter||"1st";document.getElementById("subClock").value=g.clock||"";const log=document.getElementById("subLogWrap");log.innerHTML=!g.subLog.length?'<p class="empty">No substitutions recorded yet.</p>':'<div class="table-wrap"><table class="sub-log"><thead><tr><th>Time</th><th>Out</th><th>In</th><th>Position</th></tr></thead><tbody>'+g.subLog.slice().reverse().map(s=>`<tr><td>${esc(s.quarter)} ${esc(s.clock)}</td><td>${esc(s.outName)}</td><td>${esc(s.inName)}</td><td>${esc(s.position)}</td></tr>`).join("")+'</tbody></table></div>'}
+function recordSubstitution(){const g=gameData(),outId=document.getElementById("subOut").value,inId=document.getElementById("subIn").value;if(!outId||!inId){toast("Select an outgoing and incoming player");return}const pos=courtPositions.find(x=>g.lineup[x]===outId);if(!pos){toast("Outgoing player is not on the court");return}const outP=state.players.find(p=>p.id===outId),inP=state.players.find(p=>p.id===inId);if(!outP||!inP)return;g.subLog.push({quarter:document.getElementById("subQuarter").value,clock:document.getElementById("subClock").value.trim(),outName:outP.name,inName:inP.name,position:pos});g.lineup[pos]=inId;g.quarter=document.getElementById("subQuarter").value;g.clock=document.getElementById("subClock").value.trim();persist();renderGameDay();toast("Substitution recorded")}
+
+function openPlayer(id=null){editingId=id;let p=state.players.find(x=>x.id===id);document.getElementById("modalTitle").textContent=p?"Edit player":"Add player";document.getElementById("playerName").value=p?.name||"";document.getElementById("playerNumber").value=p?.number||"";document.getElementById("playerModal").classList.add("show");document.getElementById("playerName").focus()}
+function closeModal(){document.getElementById("playerModal").classList.remove("show");editingId=null}
+function savePlayer(){let name=document.getElementById("playerName").value.trim(),number=document.getElementById("playerNumber").value.trim();if(!name){toast("Enter a player name first");return}
+ if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase()&&p.id!==editingId)){toast("That player is already on the roster");return}
+ if(editingId){let p=state.players.find(x=>x.id===editingId),old=p.name;p.name=name;p.number=number?Number(number):null;if(old!==name){state.current.rows[name]=state.current.rows[old]||blankRow();delete state.current.rows[old];state.history.forEach(h=>{if(h.rows?.[old]){h.rows[name]=h.rows[old];delete h.rows[old]}})}}else{state.players.push({id:crypto.randomUUID(),name,number:number?Number(number):null});state.current.rows[name]=blankRow()}
+ persist();closeModal();renderTracker();renderRoster();toast(editingId?"Player updated":"Player added")}
+function removePlayer(id){let p=state.players.find(x=>x.id===id);if(!p||!confirm(`Remove ${p.name} from the active roster? Saved practice records will be kept.`))return;state.players=state.players.filter(x=>x.id!==id);delete state.current.rows[p.name];persist();renderTracker();renderRoster();toast("Player removed")}
+function savePractice(){state.current.date=document.getElementById("practiceDate").value;state.current.session=document.getElementById("sessionNumber").value;state.current.coach=document.getElementById("coachName").value.trim();let copy=structuredClone(state.current),idx=state.history.findIndex(h=>h.date===copy.date&&String(h.session)===String(copy.session));if(idx>=0)state.history[idx]=copy;else state.history.push(copy);persist();toast("Practice session saved")}
+function newPractice(){if(!confirm("Start a blank practice? Save this session first if you want to keep it."))return;let d=new Date(),date=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");state.current={date,session:(Number(state.current.session)||0)+1,coach:state.current.coach||"Joseph Mack",rows:{}};state.players.forEach(p=>state.current.rows[p.name]=blankRow());renderTracker();persist();toast("New blank practice ready")}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+document.getElementById("addPlayerTop").onclick=()=>openPlayer();document.getElementById("addPlayerRoster").onclick=()=>openPlayer();document.getElementById("cancelModal").onclick=closeModal;document.getElementById("savePlayer").onclick=savePlayer;
+document.getElementById("playerModal").addEventListener("click",e=>{if(e.target.id==="playerModal")closeModal()});
+document.getElementById("savePractice").onclick=savePractice;
+document.getElementById("recordSub").onclick=recordSubstitution;document.getElementById("printGame").onclick=()=>window.print();["gameOpponent","gameDate","gameQuarter","gameClock"].forEach((id,i)=>document.getElementById(id).addEventListener("change",()=>{gameData()[["opponent","date","quarter","clock"][i]]=document.getElementById(id).value;persist()}));document.getElementById("newPractice").onclick=newPractice;document.getElementById("printBtn").onclick=()=>window.print();
+["practiceDate","sessionNumber","coachName"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{let key={practiceDate:"date",sessionNumber:"session",coachName:"coach"}[id];state.current[key]=document.getElementById(id).value;persist()}));
+document.getElementById("exportBtn").onclick=()=>{let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="jv-basketball-tracker-backup.json";a.click();URL.revokeObjectURL(a.href);toast("Backup exported")};
+document.getElementById("importBtn").onclick=()=>document.getElementById("importFile").click();document.getElementById("importFile").onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let data=JSON.parse(await f.text());if(!Array.isArray(data.players)||!data.current)throw Error();if(!confirm("Replace this browser's tracker data with the imported backup?"))return;state=data;persist();renderTracker();renderRoster();renderHistory();toast("Backup imported")}catch(err){toast("That backup file is not valid")}e.target.value=""};
+renderTracker();
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}
+function setCloudStatus(message,connected=false){const el=document.getElementById("cloudStatus");el.textContent=message;el.style.color=connected?"#16734b":"#667085"}
+function firebaseConfigured(){return FIREBASE_CONFIG.apiKey!=="PASTE_API_KEY_HERE" && FIREBASE_CONFIG.projectId!=="PASTE_PROJECT_ID_HERE" && FIREBASE_CONFIG.appId!=="PASTE_APP_ID_HERE"}
+function startCloudSync(user){
+ if(cloudUnsubscribe)cloudUnsubscribe();
+ document.getElementById("cloudSignIn").style.display="none";document.getElementById("cloudEmail").style.display="none";document.getElementById("cloudPassword").style.display="none";document.getElementById("cloudSignOut").style.display="inline-block";
+ setCloudStatus("Connecting shared team data…");
+ const ref=cloudDb.doc(TEAM_DOC_PATH);
+ cloudUnsubscribe=ref.onSnapshot(async snap=>{
+  if(!snap.exists){try{await ref.set({appData:state,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:user.email||"account"});cloudReady=true;setCloudStatus("Connected · this device's data was uploaded",true)}catch(e){setCloudStatus("Could not create team data: "+e.message)}return}
+  const remote=snap.data()?.appData;if(remote&&Array.isArray(remote.players)&&remote.current){applyingCloud=true;state=remote;localStorage.setItem("jvCoachTrackerV1",JSON.stringify(state));renderTracker();renderRoster();renderHistory();applyingCloud=false;cloudReady=true;setCloudStatus("Live sync on · signed in as "+(user.email||"team member"),true)}
+ },err=>{cloudReady=false;setCloudStatus("Sync error: "+err.message,false)});
+}
+if(!firebaseConfigured()){
+ setCloudStatus("Setup needed · add your Firebase project settings to index.html");
+ document.getElementById("cloudSignIn").disabled=true;document.getElementById("cloudSignIn").textContent="Setup needed";
+}else{
+ firebase.initializeApp(FIREBASE_CONFIG);cloudAuth=firebase.auth();cloudDb=firebase.firestore();
+ cloudAuth.onAuthStateChanged(user=>{if(user)startCloudSync(user);else{cloudReady=false;if(cloudUnsubscribe)cloudUnsubscribe();document.getElementById("cloudSignIn").style.display="inline-block";document.getElementById("cloudEmail").style.display="inline-block";document.getElementById("cloudPassword").style.display="inline-block";document.getElementById("cloudSignOut").style.display="none";setCloudStatus("Signed out · local data remains on this device")}});
+ document.getElementById("cloudSignIn").onclick=async()=>{let email=document.getElementById("cloudEmail").value.trim(),password=document.getElementById("cloudPassword").value;if(!email||!password){setCloudStatus("Enter your account email and password");return}try{await cloudAuth.signInWithEmailAndPassword(email,password)}catch(e){setCloudStatus("Sign-in failed: "+e.message)}};
+ document.getElementById("cloudSignOut").onclick=()=>cloudAuth.signOut();
+}
+</script>
+</body>
+</html>
